@@ -1,0 +1,142 @@
+{
+  "name": "water-quality-admin",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Water Quality Monitoring Admin Dashboard for Northeast India Government Health Officials",
+  "author": "Smart India Hackathon 2025 Team",
+  "homepage": ".",
+  "dependencies": {
+    "@google-cloud/firestore": "^7.11.3",
+    "@googlemaps/react-wrapper": "^1.2.0",
+    "@hookform/resolvers": "^3.3.2",
+    "@supabase/supabase-js": "^2.57.4",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.8.0",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/file-saver": "^2.0.7",
+    "@types/google.maps": "^3.58.1",
+    "@types/jest": "^27.5.2",
+    "@types/leaflet": "^1.9.8",
+    "@types/lodash": "^4.14.202",
+    "@types/node": "^16.18.126",
+    "@types/react": "^19.1.12",
+    "@types/react-csv": "^1.1.10",
+    "@types/react-datepicker": "^4.19.4",
+    "@types/react-dom": "^19.1.9",
+    "@types/react-modal": "^3.16.3",
+    "@types/react-router-dom": "^5.3.3",
+    "@types/react-table": "^7.7.18",
+    "@types/react-virtualized": "^9.21.25",
+    "ajv": "^8.17.1",
+    "axios": "^1.11.0",
+    "chart.js": "^4.5.0",
+    "date-fns": "^2.30.0",
+    "file-saver": "^2.0.5",
+    "firebase": "^12.2.1",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^2.5.1",
+    "leaflet": "^1.9.4",
+    "lodash": "^4.17.21",
+    "lucide-react": "^0.544.0",
+    "react": "^19.1.1",
+    "react-chartjs-2": "^5.3.0",
+    "react-csv": "^2.2.2",
+    "react-datepicker": "^4.25.0",
+    "react-dom": "^19.1.1",
+    "react-hook-form": "^7.48.2",
+    "react-hot-toast": "^2.6.0",
+    "react-leaflet": "^4.2.1",
+    "react-modal": "^3.16.1",
+    "react-pagination": "^1.0.0",
+    "react-query": "^3.39.3",
+    "react-router-dom": "^7.8.2",
+    "react-scripts": "5.0.1",
+    "react-select": "^5.8.0",
+    "react-table": "^7.8.0",
+    "react-virtualized": "^9.22.5",
+    "recharts": "^2.8.0",
+    "typescript": "^4.9.5",
+    "web-vitals": "^2.1.4",
+    "yup": "^1.4.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "lint": "eslint src --ext .ts,.tsx",
+    "lint:fix": "eslint src --ext .ts,.tsx --fix",
+    "type-check": "tsc --noEmit",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,css,md}\"",
+    "analyze": "npm run build && npx source-map-explorer 'build/static/js/*.js'",
+    "serve": "serve -s build -l 3000",
+    "dev:setup": "npm install && npm run type-check",
+    "dev:clean": "rm -rf node_modules package-lock.json && npm install",
+    "build:analyze": "npm run build && npx webpack-bundle-analyzer build/static/js/*.js",
+    "test:coverage": "npm test -- --coverage --watchAll=false",
+    "test:ci": "CI=true npm test -- --coverage --watchAll=false"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ],
+    "rules": {
+      "@typescript-eslint/no-unused-vars": "warn",
+      "react-hooks/exhaustive-deps": "warn",
+      "no-console": "warn"
+    }
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@types/file-saver": "^2.0.7",
+    "@types/lodash": "^4.14.202",
+    "@types/react-csv": "^1.1.10",
+    "@types/react-datepicker": "^4.19.4",
+    "@types/react-modal": "^3.16.3",
+    "@types/react-table": "^7.7.18",
+    "@types/react-virtualized": "^9.21.25",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.0",
+    "prettier": "^3.1.0",
+    "serve": "^14.2.1",
+    "source-map-explorer": "^2.5.3",
+    "webpack-bundle-analyzer": "^4.10.1"
+  },
+  "keywords": [
+    "water-quality",
+    "monitoring",
+    "government",
+    "health",
+    "northeast-india",
+    "react",
+    "typescript",
+    "supabase",
+    "firebase",
+    "smart-india-hackathon"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/water-quality-admin"
+  },
+  "bugs": {
+    "url": "https://github.com/your-org/water-quality-admin/issues"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  }
+}
