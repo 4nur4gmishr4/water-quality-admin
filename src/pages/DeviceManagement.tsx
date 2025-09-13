@@ -1,5 +1,5 @@
 import React from 'react';
-import { Activity, Settings, Wifi, WifiOff } from 'lucide-react';
+import { Activity, Settings } from 'lucide-react';
 
 const DeviceManagement: React.FC = () => {
   return (

@@ -7,19 +7,19 @@ import {
   User, 
   Shield,
   ChevronDown,
-  Menu
+  Menu,
+  X
 } from 'lucide-react';
 
-const Header: React.FC<{ onToggleSidebar: () => void }> = ({ onToggleSidebar }) => {
+const Header: React.FC<{ onToggleSidebar: () => void; isSidebarOpen: boolean }> = ({ onToggleSidebar, isSidebarOpen }) => {
   const { userProfile, logout } = useAuth();
   const [showDropdown, setShowDropdown] = React.useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
   const handleLogout = async () => {
     try {
       await logout();
     } catch (error) {
-      console.error('Logout error:', error);
+      // Handle error silently or show a toast notification
     }
   };
 
@@ -77,13 +77,13 @@ const Header: React.FC<{ onToggleSidebar: () => void }> = ({ onToggleSidebar }) 
       <header className="bg-white border-bottom shadow-sm">
         <div className="container-fluid">
           <div className="d-flex align-items-center justify-content-between py-3">
-            {/* Sidebar Toggle Button */}
+            {/* Sidebar Toggle Button (Mobile Only) */}
           <button
             className="btn btn-link p-1 mr-2"
             onClick={onToggleSidebar}
             aria-label="Toggle Sidebar"
           >
-            <Menu size={24} />
+            {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
 
           {/* Government Logo and Title */}
@@ -200,71 +200,12 @@ const Header: React.FC<{ onToggleSidebar: () => void }> = ({ onToggleSidebar }) 
       </div>
 
       {/* Click outside to close dropdown */}
-      {/* Mobile Menu */}
-      <div className={`mobile-menu position-fixed bg-white w-100 ${isMobileMenuOpen ? 'show' : ''}`}
-           style={{
-             top: '72px',
-             left: 0,
-             right: 0,
-             bottom: 0,
-             zIndex: 1000,
-             transform: isMobileMenuOpen ? 'translateX(0)' : 'translateX(-100%)',
-             transition: 'transform 0.3s ease-in-out'
-           }}>
-        <div className="border-top">
-          <div className="p-3">
-            <div className="d-flex align-items-center mb-3">
-              <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mr-2"
-                   style={{ width: '40px', height: '40px', fontSize: '1rem' }}>
-                {userProfile?.full_name?.charAt(0)?.toUpperCase() || 'U'}
-              </div>
-              <div>
-                <div className="font-weight-bold">{userProfile?.full_name || 'User'}</div>
-                <span className={`badge ${getRoleBadgeColor(userProfile?.role || '')}`}>
-                  {getRoleDisplayName(userProfile?.role || '')}
-                </span>
-              </div>
-            </div>
-            <div className="mb-2 text-muted small">
-              {userProfile?.state && (
-                <>{userProfile.district ? `${userProfile.district}, ` : ''}{userProfile.state}</>
-              )}
-            </div>
-          </div>
-          
-          <div className="border-top">
-            <button className="btn btn-link w-100 text-left d-flex align-items-center py-3 px-3">
-              <Bell size={20} className="mr-3" />
-              Notifications
-              <span className="badge badge-danger ml-auto">3</span>
-            </button>
-            <button className="btn btn-link w-100 text-left d-flex align-items-center py-3 px-3">
-              <User size={20} className="mr-3" />
-              Profile
-            </button>
-            <button className="btn btn-link w-100 text-left d-flex align-items-center py-3 px-3">
-              <Settings size={20} className="mr-3" />
-              Settings
-            </button>
-            <button 
-              className="btn btn-link w-100 text-left d-flex align-items-center py-3 px-3 text-danger"
-              onClick={handleLogout}
-            >
-              <LogOut size={20} className="mr-3" />
-              Sign Out
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Backdrop for dropdowns */}
-      {(showDropdown || isMobileMenuOpen) && (
+      {showDropdown && (
         <div 
           className="position-fixed w-100 h-100"
           style={{ top: 0, left: 0, zIndex: 999 }}
           onClick={() => {
             setShowDropdown(false);
-            setIsMobileMenuOpen(false);
           }}
         />
       )}

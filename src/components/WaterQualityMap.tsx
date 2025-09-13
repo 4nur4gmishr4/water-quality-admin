@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { supabase, WaterQualityReading, IoTDevice } from '../config/supabase';
 
 interface MapData {
@@ -8,6 +8,7 @@ interface MapData {
 
 const WaterQualityMap: React.FC = () => {
   const mapRef = useRef<HTMLDivElement>(null);
+  const markersRef = useRef<google.maps.Marker[]>([]);
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [mapData, setMapData] = useState<MapData>({ devices: [], readings: [] });
   const [loading, setLoading] = useState(true);
@@ -78,132 +79,73 @@ const WaterQualityMap: React.FC = () => {
     }
   }, []);
 
-  // Fetch map data
-  useEffect(() => {
-    const fetchMapData = async () => {
-      try {
-        setLoading(true);
+  const fetchMapData = useCallback(async () => {
+    try {
+      setLoading(true);
 
-        // Fetch devices with latest readings
-        const { data: devices, error: devicesError } = await supabase
-          .from('iot_devices')
-          .select(`
-            *,
-            villages(name, district_id, districts(name, state))
-          `);
+      // Fetch devices with latest readings
+      const { data: devices, error: devicesError } = await supabase
+        .from('iot_devices')
+        .select(`
+          *,
+          villages(name, district_id, districts(name, state))
+        `);
 
-        if (devicesError) {
-          console.error('Error fetching devices:', devicesError);
-          return;
-        }
-
-        // Fetch latest readings for each device
-        const { data: readings, error: readingsError } = await supabase
-          .from('water_quality_readings')
-          .select(`
-            *,
-            disease_risk_predictions(
-              overall_risk_level,
-              overall_risk_score,
-              confidence_score
-            )
-          `)
-          .order('timestamp', { ascending: false });
-
-        if (readingsError) {
-          console.error('Error fetching readings:', readingsError);
-          return;
-        }
-
-        setMapData({
-          devices: devices || [],
-          readings: readings || []
-        });
-      } catch (error) {
-        console.error('Error fetching map data:', error);
-      } finally {
-        setLoading(false);
+      if (devicesError || !devices) {
+        setMapData({ devices: [], readings: [] });
+        return;
       }
-    };
 
-    fetchMapData();
+      // Fetch latest readings for each device
+      const { data: readings, error: readingsError } = await supabase
+        .from('water_quality_readings')
+        .select(`
+          *,
+          disease_risk_predictions(
+            overall_risk_level,
+            overall_risk_score,
+            confidence_score
+          )
+        `)
+        .order('timestamp', { ascending: false });
+
+      if (readingsError) {
+        setMapData({ devices, readings: [] });
+        return;
+      }
+
+      setMapData({
+        devices: devices,
+        readings: readings || []
+      });
+    } catch (error) {
+      setMapData({ devices: [], readings: [] });
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  // Add markers to map
+  // Fetch data periodically
   useEffect(() => {
-    if (!map || !mapData.devices.length) return;
+    fetchMapData();
+    const interval = setInterval(fetchMapData, 30000);
+    return () => clearInterval(interval);
+  }, [fetchMapData]);
 
-    // Clear existing markers
-    // Note: In a real implementation, you'd want to track and clear markers
+  // Helper function to get color based on risk level
+  const getRiskColor = useCallback((riskLevel: string) => {
+    switch (riskLevel) {
+      case 'low': return '#28A745';
+      case 'medium': return '#FFC107';
+      case 'high': return '#FF8C00';
+      case 'critical': return '#DC3545';
+      case 'offline': return '#DC3545';
+      default: return '#6C757D';
+    }
+  }, []);
 
-    mapData.devices.forEach((device) => {
-      // Get latest reading for this device
-      const latestReading = mapData.readings
-        .filter(reading => reading.device_id === device.id)
-        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
-
-      // Determine marker color based on device status and risk level
-      let markerColor = '#6C757D'; // Gray for no data
-      let riskLevel = 'unknown';
-
-      if (device.status === 'offline') {
-        markerColor = '#DC3545'; // Red for offline
-        riskLevel = 'offline';
-      } else if (latestReading) {
-        const riskPrediction = (latestReading as any).disease_risk_predictions?.[0];
-        if (riskPrediction) {
-          switch (riskPrediction.overall_risk_level) {
-            case 'low':
-              markerColor = '#28A745'; // Green
-              riskLevel = 'low';
-              break;
-            case 'medium':
-              markerColor = '#FFC107'; // Yellow
-              riskLevel = 'medium';
-              break;
-            case 'high':
-              markerColor = '#FF8C00'; // Orange
-              riskLevel = 'high';
-              break;
-            case 'critical':
-              markerColor = '#DC3545'; // Red
-              riskLevel = 'critical';
-              break;
-          }
-        }
-      }
-
-      // Create marker
-      const marker = new google.maps.Marker({
-        position: {
-          lat: parseFloat(device.coordinates?.coordinates?.[1] || '0'),
-          lng: parseFloat(device.coordinates?.coordinates?.[0] || '0')
-        },
-        map: map,
-        title: device.device_id,
-        icon: {
-          path: google.maps.SymbolPath.CIRCLE,
-          scale: 8,
-          fillColor: markerColor,
-          fillOpacity: 0.8,
-          strokeColor: '#FFFFFF',
-          strokeWeight: 2
-        }
-      });
-
-      // Create info window
-      const infoWindow = new google.maps.InfoWindow({
-        content: createInfoWindowContent(device, latestReading, riskLevel)
-      });
-
-      // Add click listener
-      marker.addListener('click', () => {
-        infoWindow.open(map, marker);
-      });
-    });
-  }, [map, mapData]);
-
-  const createInfoWindowContent = (
+  // Create info window content with proper dependencies and memoization
+  const createInfoWindowContent = useCallback((
     device: IoTDevice, 
     reading: WaterQualityReading | undefined,
     riskLevel: string
@@ -271,18 +213,79 @@ const WaterQualityMap: React.FC = () => {
         `}
       </div>
     `;
-  };
+  }, [getRiskColor]);
 
-  const getRiskColor = (riskLevel: string) => {
-    switch (riskLevel) {
-      case 'low': return '#28A745';
-      case 'medium': return '#FFC107';
-      case 'high': return '#FF8C00';
-      case 'critical': return '#DC3545';
-      case 'offline': return '#DC3545';
-      default: return '#6C757D';
-    }
-  };
+  // Update markers when map or data changes
+  useEffect(() => {
+    if (!map || !mapData.devices.length) return;
+
+    // Clear existing markers
+    markersRef.current.forEach(marker => marker.setMap(null));
+    markersRef.current = [];
+
+    // Create new markers
+    mapData.devices.forEach((device) => {
+      const latestReading = mapData.readings
+        .find(reading => reading.device_id === device.id);
+
+      let markerColor = '#6C757D';
+      let riskLevel = 'unknown';
+
+      if (device.status === 'offline') {
+        markerColor = '#DC3545';
+        riskLevel = 'offline';
+      } else if (latestReading) {
+        const riskPrediction = (latestReading as any).disease_risk_predictions?.[0];
+        if (riskPrediction) {
+          switch (riskPrediction.overall_risk_level) {
+            case 'low':
+              markerColor = '#28A745';
+              riskLevel = 'low';
+              break;
+            case 'medium':
+              markerColor = '#FFC107';
+              riskLevel = 'medium';
+              break;
+            case 'high':
+              markerColor = '#FF8C00';
+              riskLevel = 'high';
+              break;
+            case 'critical':
+              markerColor = '#DC3545';
+              riskLevel = 'critical';
+              break;
+          }
+        }
+      }
+
+      const marker = new google.maps.Marker({
+        position: {
+          lat: parseFloat(device.coordinates?.coordinates?.[1] || '0'),
+          lng: parseFloat(device.coordinates?.coordinates?.[0] || '0')
+        },
+        map: map,
+        title: device.device_id,
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 8,
+          fillColor: markerColor,
+          fillOpacity: 0.8,
+          strokeColor: '#FFFFFF',
+          strokeWeight: 2
+        }
+      });
+
+      const infoWindow = new google.maps.InfoWindow({
+        content: createInfoWindowContent(device, latestReading, riskLevel)
+      });
+
+      marker.addListener('click', () => {
+        infoWindow.open(map, marker);
+      });
+
+      markersRef.current.push(marker);
+    });
+  }, [map, mapData, createInfoWindowContent]);
 
   if (loading) {
     return (

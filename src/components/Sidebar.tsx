@@ -177,20 +177,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen = true, onClose }) => {
           /* Responsive Layout */
           @media (min-width: 992px) {
             .sidebar {
-              transform: translateX(0);
+              transform: translateX(-100%); /* Initially closed on desktop */
+              width: 280px;
+              top: 72px;
+              height: calc(100vh - 72px);
             }
 
-            .sidebar.closed {
-              transform: translateX(-100%);
-            }
-
-            .main-content {
-              margin-left: 280px;
-              transition: margin 0.3s ease-in-out;
-            }
-
-            .main-content.sidebar-closed {
-              margin-left: 0;
+            .sidebar.open {
+              transform: translateX(0) !important; /* Open when isOpen is true */
             }
 
             .sidebar-backdrop {
@@ -199,8 +193,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen = true, onClose }) => {
           }
         `}
       </style>
-      {isOpen && <div className={`sidebar-backdrop ${isOpen ? 'show' : ''}`} onClick={onClose} />}
-      <aside className={`sidebar ${isOpen ? 'open' : 'closed'}`}>
+      {/* Only show backdrop on mobile when sidebar is open */}
+      {isOpen && window.innerWidth < 992 && <div className={`sidebar-backdrop ${isOpen ? 'show' : ''}`} onClick={onClose} />}
+      <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
         <div className="p-4">
           <nav>
           <ul className="list-unstyled">

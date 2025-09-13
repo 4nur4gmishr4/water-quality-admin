@@ -12,6 +12,7 @@ import {
   WifiOff,
   Smartphone
 } from 'lucide-react';
+import PageLayout from '../components/PageLayout';
 import { supabase, DashboardOverview } from '../config/supabase';
 import WaterQualityMap from '../components/WaterQualityMap';
 
@@ -42,14 +43,13 @@ const Dashboard: React.FC = () => {
         .single();
 
       if (error) {
-        console.error('Error fetching dashboard data:', error);
         return;
       }
 
       setDashboardData(data);
       setLastUpdated(new Date());
     } catch (error) {
-      console.error('Error fetching dashboard data:', error);
+      // console.error('Error fetching dashboard data:', error);
     } finally {
       setLoading(false);
     }
@@ -205,29 +205,18 @@ const Dashboard: React.FC = () => {
   const statCards = getStatCards();
 
   return (
-    <div className="container-fluid py-4">
-      {/* Header */}
-      <div className="row mb-4">
-        <div className="col-12">
-          <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center">
-            <div className="mb-3 mb-sm-0">
-              <h1 className="heading-2">Dashboard Overview</h1>
-              <p className="text-muted mb-0 d-none d-sm-block">
-                Real-time monitoring of water quality and disease surveillance system
-              </p>
-              <p className="text-muted mb-0 d-block d-sm-none">
-                System Overview
-              </p>
-            </div>
-            <div className="text-left text-sm-right">
-              <small className="text-muted d-block">Last updated</small>
-              <small className="text-primary">
-                {lastUpdated.toLocaleTimeString()}
-              </small>
-            </div>
-          </div>
+    <PageLayout
+      title="Dashboard Overview"
+      description="Real-time monitoring of water quality and disease surveillance system"
+      actions={
+        <div className="text-right">
+          <small className="text-muted d-block">Last updated</small>
+          <small className="text-primary">
+            {lastUpdated.toLocaleTimeString()}
+          </small>
         </div>
-      </div>
+      }
+    >
 
       {/* Statistics Cards */}
       <div className="row mb-5">
@@ -459,7 +448,7 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
+    </PageLayout>
   );
 };
 

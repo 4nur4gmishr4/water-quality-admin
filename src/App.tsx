@@ -50,13 +50,13 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   return (
     <div className="d-flex flex-column min-vh-100">
-      <Header onToggleSidebar={toggleSidebar} />
-      <div className="d-flex flex-grow-1">
-        <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-        <main className={`flex-grow-1 bg-light main-content ${isSidebarOpen ? '' : 'sidebar-closed'}`}>
-          {children}
-        </main>
-      </div>
+      <header className="header">
+        <Header onToggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
+      </header>
+      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      <main className={`content-wrapper ${isSidebarOpen ? 'sidebar-open' : ''}`}>
+        {children}
+      </main>
     </div>
   );
 };

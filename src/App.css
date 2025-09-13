@@ -26,20 +26,22 @@
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
-  margin-left: var(--sidebar-width);
   transition: margin-left 0.3s ease;
 }
 
-.App-content.sidebar-collapsed {
-  margin-left: var(--sidebar-collapsed-width);
+@media (min-width: 992px) {
+  .App-content {
+    margin-left: var(--sidebar-width);
+  }
 }
 
 .main-content {
   flex: 1;
   padding: var(--container-padding);
-  max-width: var(--content-max-width);
-  margin: 0 auto;
-  width: 100%;
+  background: #F9FAFB;
+  min-height: calc(100vh - var(--header-height));
+  margin-top: var(--header-height); /* Match header height */
+  transition: all 0.3s ease-in-out;
 }
 
 /* Responsive Layout Adjustments */
@@ -641,10 +643,156 @@ input, select, textarea {
 /* Content Area */
 .main-content {
   flex: 1;
-  padding: 2rem 1.5rem;
+  padding: var(--container-padding);
   background: #F9FAFB;
-  min-height: calc(100vh - 72px);
+  min-height: calc(100vh - var(--header-height));
+  margin-top: var(--header-height); /* Match header height */
   transition: all 0.3s ease-in-out;
+}
+
+/* Layout Spacing Utilities */
+.header {
+  height: 72px;
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 1030;
+  background: white;
+  border-bottom: 1px solid #E4E7EC;
+}
+
+.content-wrapper {
+  margin-top: var(--header-height);
+  padding: var(--container-padding);
+  min-height: calc(100vh - var(--header-height));
+  transition: padding 0.3s ease-in-out;
+}
+
+@media (min-width: 992px) {
+  .content-wrapper {
+    padding: var(--container-padding);
+  }
+  
+  .content-wrapper.sidebar-open {
+    margin-left: var(--sidebar-width);
+  }
+}
+
+/* Section Spacing */
+.section {
+  margin-bottom: 2rem;
+}
+
+.section:last-child {
+  margin-bottom: 0;
+}
+
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #101828;
+  margin-bottom: 1rem;
+}
+
+/* Card Spacing */
+.card {
+  margin-bottom: 1.5rem;
+}
+
+.card:last-child {
+  margin-bottom: 0;
+}
+
+.card-header {
+  padding: 1.25rem;
+}
+
+.card-body {
+  padding: 1.25rem;
+}
+
+@media (min-width: 992px) {
+  .card-header {
+    padding: 1.5rem;
+  }
+  
+  .card-body {
+    padding: 1.5rem;
+  }
+}
+
+/* Grid Spacing */
+.row {
+  margin-right: calc(var(--grid-gap) / -2);
+  margin-left: calc(var(--grid-gap) / -2);
+}
+
+.col, [class*="col-"] {
+  padding-right: calc(var(--grid-gap) / 2);
+  padding-left: calc(var(--grid-gap) / 2);
+}
+
+@media (min-width: 992px) {
+  .row {
+    margin-right: calc(var(--grid-gap) / -2);
+    margin-left: calc(var(--grid-gap) / -2);
+  }
+  
+  .col, [class*="col-"] {
+    padding-right: calc(var(--grid-gap) / 2);
+    padding-left: calc(var(--grid-gap) / 2);
+  }
+}
+
+/* Page Spacing and Layout */
+.page-wrapper {
+  padding: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.page-header-wrapper {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #E4E7EC;
+}
+
+.page-title-wrapper {
+  margin-bottom: 1rem;
+}
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #101828;
+  margin-bottom: 0.5rem;
+}
+
+.page-description {
+  color: #475467;
+  font-size: 0.875rem;
+  max-width: 768px;
+}
+
+.page-content {
+  margin-top: 1.5rem;
+}
+
+/* Section Spacing */
+.section {
+  margin-bottom: 2rem;
+}
+
+.section-header {
+  margin-bottom: 1.5rem;
+}
+
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #101828;
+  margin-bottom: 0.5rem;
 }
 
 @media (min-width: 992px) {
@@ -652,6 +800,23 @@ input, select, textarea {
     padding: 2rem;
   }
 
+  .page-wrapper {
+    padding: 2rem;
+  }
+
+  .page-header-wrapper {
+    margin-bottom: 2.5rem;
+    padding-bottom: 2rem;
+  }
+
+  .page-title {
+    font-size: 1.75rem;
+  }
+
+  .section {
+    margin-bottom: 2.5rem;
+  }
+  
   .container-fluid {
     padding-right: 2rem;
     padding-left: 2rem;

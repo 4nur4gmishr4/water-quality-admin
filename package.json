@@ -75,7 +75,9 @@
     "dev:clean": "rm -rf node_modules package-lock.json && npm install",
     "build:analyze": "npm run build && npx webpack-bundle-analyzer build/static/js/*.js",
     "test:coverage": "npm test -- --coverage --watchAll=false",
-    "test:ci": "CI=true npm test -- --coverage --watchAll=false"
+    "test:ci": "CI=true npm test -- --coverage --watchAll=false",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
@@ -110,6 +112,7 @@
     "@types/react-virtualized": "^9.21.25",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.0",
+    "gh-pages": "^6.3.0",
     "prettier": "^3.1.0",
     "serve": "^14.2.1",
     "source-map-explorer": "^2.5.3",
