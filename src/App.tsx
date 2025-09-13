@@ -63,7 +63,18 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 // Main App Component
 const AppContent: React.FC = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center min-vh-100">
+        <div className="text-center">
+          <div className="loading-spinner mx-auto mb-3" style={{ width: '3rem', height: '3rem' }}></div>
+          <p className="text-muted">Loading auth state...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Router>
@@ -172,36 +183,72 @@ const AppContent: React.FC = () => {
 };
 
 function App() {
+  // Add error boundary
+  const [error, setError] = React.useState<Error | null>(null);
+
+  React.useEffect(() => {
+    if (window.location.pathname !== '/' && !window.location.pathname.startsWith('/water-quality-admin')) {
+      console.log('Redirecting to correct base path');
+      window.location.href = '/water-quality-admin';
+    }
+  }, []);
+
+  if (error) {
+    return (
+      <div className="d-flex justify-content-center align-items-center min-vh-100">
+        <div className="text-center">
+          <h1>Something went wrong</h1>
+          <pre>{error.message}</pre>
+          <button 
+            className="btn btn-primary mt-3" 
+            onClick={() => window.location.reload()}
+          >
+            Reload Page
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <AuthProvider>
-      <AppContent />
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          duration: 4000,
-          style: {
-            background: '#FFFFFF',
-            color: '#212529',
-            border: '1px solid #DEE2E6',
-            borderRadius: '8px',
-            fontSize: '14px',
-            fontFamily: 'Poppins, Inter, sans-serif'
-          },
-          success: {
-            iconTheme: {
-              primary: '#28A745',
-              secondary: '#FFFFFF'
+    <React.Suspense fallback={
+      <div className="d-flex justify-content-center align-items-center min-vh-100">
+        <div className="text-center">
+          <div className="loading-spinner mx-auto mb-3" style={{ width: '3rem', height: '3rem' }}></div>
+          <p className="text-muted">Loading application...</p>
+        </div>
+      </div>
+    }>
+      <AuthProvider>
+        <AppContent />
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 4000,
+            style: {
+              background: '#FFFFFF',
+              color: '#212529',
+              border: '1px solid #DEE2E6',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontFamily: 'Poppins, Inter, sans-serif'
+            },
+            success: {
+              iconTheme: {
+                primary: '#28A745',
+                secondary: '#FFFFFF'
+              }
+            },
+            error: {
+              iconTheme: {
+                primary: '#DC3545',
+                secondary: '#FFFFFF'
+              }
             }
-          },
-          error: {
-            iconTheme: {
-              primary: '#DC3545',
-              secondary: '#FFFFFF'
-            }
-          }
-        }}
-      />
-    </AuthProvider>
+          }}
+        />
+      </AuthProvider>
+    </React.Suspense>
   );
 }
 
